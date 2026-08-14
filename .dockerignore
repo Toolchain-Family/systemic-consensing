@@ -1,0 +1,9 @@
+node_modules
+dist
+.git
+.idea
+*.log
+RUNBOOK.md
+docpouch-dev/db
+docpouch-dev/log
+docker-compose.yml

@@ -1,0 +1,25 @@
+services:
+  docpouch:
+    image: ghcr.io/bfh-jtf/doc-pouch:latest
+    container_name: sysconsens-docpouch
+    volumes:
+      - ./docpouch-dev/db:/app/db
+      - ./docpouch-dev/log:/app/log
+    environment:
+      - PORT=3030
+      - MEMORY_ONLY=false
+      - ALLOWED_ORIGINS=http://localhost:3001
+      - OIDC_ISSUER=http://localhost:3031
+      - OIDC_REGISTRATION_TOKEN=sysconsens-dev-token-123
+    restart: unless-stopped
+    ports:
+      - "3031:3030"
+
+  sysconsens:
+    build: .
+    container_name: sysconsens-app
+    depends_on:
+      - docpouch
+    restart: unless-stopped
+    ports:
+      - "3001:80"

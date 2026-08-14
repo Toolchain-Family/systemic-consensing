@@ -39,11 +39,21 @@ A modern web application for decision-making through **Systemic Consensus** — 
 - Node.js ≥ 16
 - A running DocPouch instance (see `docpouch-dev/` for a local Docker setup)
 
-### Local development
+### Docker (komplette Umgebung)
+
+```bash
+docker compose up -d --build
+python docpouch-dev/setup-local.py   # legt Struktur + TDD auf der lokalen DocPouch an (idempotent)
+```
+
+Startet **DocPouch** (`http://localhost:3031`) und die **App** (`http://localhost:3001/Tools/SysConsens/`) als Container. Das Setup-Skript muss nur einmal pro frischer Datenbank laufen.
+
+### Local development (ohne Docker für die App)
 
 ```bash
 npm install
 docker compose -f docpouch-dev/docker-compose.yml up -d   # local DocPouch on :3031
+python docpouch-dev/setup-local.py                        # Struktur + TDD (einmalig)
 npm run dev
 ```
 
@@ -98,9 +108,14 @@ All environment-specific settings live in `src/config/docpouch.js`:
 │   ├── App.vue
 │   ├── main.js
 │   └── style.css
-├── docpouch-dev/              # Local DocPouch (Docker) + payload files
+├── docpouch-dev/              # Lokale DocPouch (Docker) + Setup
 │   ├── docker-compose.yml
-│   └── structure-consensus-session.json
+│   ├── setup-local.py         # legt Struktur + TDD auf der lokalen DB an
+│   ├── structure-consensus-session.json
+│   └── tdd-consensus.json
+├── Dockerfile                 # App-Image (nginx, statisch)
+├── nginx.conf                 # SPA-Serving unter /Tools/SysConsens/
+├── docker-compose.yml         # DocPouch + App zusammen starten
 ├── index.html
 ├── vite.config.js             # base: /Tools/SysConsens/
 └── RUNBOOK.md                 # Toolchain-Integrationsanleitung (Deutsch)
