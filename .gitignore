@@ -1,0 +1,21 @@
+node_modules/
+dist/
+.idea/
+*.log
+
+# Enthält Live-Zugangsdaten (SFTP-Passwort, Tokens)
+RUNBOOK.md
+
+# Lokale DocPouch-Datenbank & Backups
+docpouch-dev/db/
+docpouch-dev/log/
+remote-backup.json
+
+# Reusable DocPouch helper + Token (enthalten Live-Zugangsdaten)
+dp-helper.py
+dp_token.txt
+dp-token*.txt
+
+# Env-Dateien
+.env
+.env.local

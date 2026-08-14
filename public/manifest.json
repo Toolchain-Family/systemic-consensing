@@ -1,0 +1,46 @@
+{
+  "tool": "Systemic Consensing",
+  "version": "1.0.0",
+  "description": "Entscheidungs-Tool nach der Methode des Systemischen Konsenses: Optionen mit minimalem Widerstand statt maximaler Zustimmung finden. Teilnehmer bewerten jede Option mit einer Widerstands-Skala von 0 bis 10.",
+  "roles": [
+    {
+      "key": "consensusSession",
+      "name": "Consensus Session",
+      "description": "Container-Dokument einer Systemischen-Konsens-Abstimmung mit Frage, Optionen, Zeitlimit und den Widerstands-Bewertungen der Teilnehmer",
+      "structure": [
+        {
+          "key": "title",
+          "display": "Title",
+          "type": "string"
+        },
+        {
+          "key": "question",
+          "display": "Question",
+          "type": "string"
+        },
+        {
+          "key": "options",
+          "display": "Options",
+          "type": "array",
+          "items": "string"
+        },
+        {
+          "key": "endTime",
+          "display": "End Time",
+          "type": "string"
+        },
+        {
+          "key": "status",
+          "display": "Status",
+          "type": "string"
+        },
+        {
+          "key": "votes",
+          "display": "Votes",
+          "type": "object"
+        }
+      ]
+    }
+  ],
+  "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAACrklEQVR4nO3dTTIDQRyGcZOaFZYcIbhBhOOgXAKROIWv45C4gcQRWGIbJapCKonMJDOpdD/Pb6FQEov/O293enwkayU4bH32y3heuoeL9aTo5yzsCQ+aHw59iR4bG4XMbqEncejhh2GuBzr4eIJQyfsAh7+65plNrsQcXLrOh+DxMnsTZPrCuoMPUjtDEGYuAQ4/XFlm928AHH74Zs1wakXUG673MWk3Jy8HuV8FKC4TA+DVH59pMx2rhf3Gu0e6Ees0N0dmPvLB/oXDJ+i0fkPgHgBuGACvfo6/s7YB4NLhe279kAabgdq5mz+ip6vNxCUAzgDAJbUz65/MBoAzAHBp39d/aKnzZ3MJgDMAcAYALu17DwDNBoAzAHAGAM5zADgbAM6jYDgbAM49AJwNAGcA4AwAnPcC4GwAOAMAZwDgDACcB0Fw3guAcwmAMwBw7gHgbAC41J8KZ7MB4NwDwNkAcAYAzgDApX1/OxTNBoAzAHAGAM5zADgbAM57AXA2AJx7ADgbAM4AwBkAOO8FwNkAcAYAzgDAeQ4AZwPAeS8AzgaAcw8AZwPAGQA4/0IInHsAOJcAOAMAZwDgDACcfy0czgaAMwBwBgDOgyA4GwDOewFwNgCcewA4GwDOAMAZADjvBcDZAHAGAM4AwHkOAOdRMJxLAJwBgEu+3+ydvvnf44Cer7cSGwDOAMANloBvuy4DKN3rrcHs0+Fn3AUguQTADQPQvfmpBMXv76xtALixq373xDOBmHVvR5t+Yu3vnLy6JYxQ73Z7bN6VrF+osE2bqXsAuH+v9J1jl4IY9O6mN3pl3gcqDLNmOHMJMAThyjK7XFd41SUhCC85mjt3xVeP3Besspf7fMt2pexvoOWZZzYLDdM2WA2LXJSFXc2GYbmKauJS6twwlKOM5fcL/UGq0e5nT/4AAAAASUVORK5CYII="
+}

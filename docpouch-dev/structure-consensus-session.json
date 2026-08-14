@@ -1,0 +1,39 @@
+{
+  "name": "Systemic Consensing Session",
+  "type": 6,
+  "subType": 0,
+  "description": "Container-Dokument einer Systemischen-Konsens-Abstimmung mit Frage, Optionen, Zeitlimit und den Widerstands-Bewertungen der Teilnehmer (Skala 0-10)",
+  "fields": [
+    {
+      "name": "title",
+      "displayName": "Title",
+      "type": "string"
+    },
+    {
+      "name": "question",
+      "displayName": "Question",
+      "type": "string"
+    },
+    {
+      "name": "options",
+      "displayName": "Options",
+      "type": "array",
+      "items": "string"
+    },
+    {
+      "name": "endTime",
+      "displayName": "End Time",
+      "type": "string"
+    },
+    {
+      "name": "status",
+      "displayName": "Status",
+      "type": "string"
+    },
+    {
+      "name": "votes",
+      "displayName": "Votes",
+      "type": "object"
+    }
+  ]
+}
