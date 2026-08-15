@@ -2,7 +2,7 @@ import { ref } from 'vue';
 import DocPouchClient from 'docpouch-client';
 import { DOCPOUCH_URL, OIDC_CONFIG, AUTH_METHOD } from '../config/docpouch.js';
 
-const dpClient = new DocPouchClient(DOCPOUCH_URL);
+const dpClient = new DocPouchClient(DOCPOUCH_URL, 0);
 dpClient.setOidcConfig(OIDC_CONFIG);
 
 export const isAuthenticated = ref(false);
