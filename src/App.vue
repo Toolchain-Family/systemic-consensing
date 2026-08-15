@@ -13,6 +13,7 @@
       @sign-in="loginOidc()"
       @continue-without-login="dismissed = true"
     />
+    <HelpModal v-if="showHelp" :content="helpContent" @close="showHelp = false" />
 
     <div v-else-if="!isAuthenticated" class="min-h-screen flex items-center justify-center">
       <div class="bg-white rounded-lg shadow-lg p-6 text-center">
@@ -51,7 +52,7 @@
               class="text-xs px-3 py-1.5 bg-[#fd7e14] hover:bg-[#e0690d] text-white rounded transition-colors"
           >{{ demoLoaded ? '🧹 Clear' : '▶ Demo' }}</button>
           <a :href="TOOLCHAIN_URL" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 bg-[#6f42c1] hover:bg-[#5a32a3] text-white rounded transition-colors">🖥️ TC Dashboard</a>
-          <button title="Help" class="w-[34px] h-[34px] rounded-full bg-[#6c757d] text-white text-base font-semibold hover:brightness-110">?</button>
+          <button title="Help" class="w-[34px] h-[34px] rounded-full bg-[#6c757d] text-white text-base font-semibold hover:brightness-110" @click="showHelp = true">?</button>
           <span class="flex items-center space-x-2 text-xs text-gray-600 bg-[#e9ecef] rounded-full px-3 py-1.5">
             👤 {{ userName }}
             <button
@@ -173,6 +174,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import SignInModal from './components/SignInModal.vue';
+import HelpModal from './components/HelpModal.vue';
+import helpContent from './helpContent.js';
 import SessionSidebar from './components/SessionSidebar.vue';
 import VotingPanel from './components/VotingPanel.vue';
 import ResultsPanel from './components/ResultsPanel.vue';
@@ -190,6 +193,7 @@ const TOOLCHAIN_URL = import.meta.env.VITE_TOOLCHAIN_URL || 'https://tapassio.pa
 
 const activeTab = ref('voting');
 const dismissed = ref(false);
+const showHelp = ref(false);
 
 function backToStart() {
   activeTab.value = 'voting';
