@@ -1,3 +1,21 @@
 ﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.btn-help {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #6c757d;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn-help:hover { filter: brightness(1.15); }
