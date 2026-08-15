@@ -50,6 +50,7 @@
               @click="toggleDemo"
               class="text-xs px-3 py-1.5 bg-[#fd7e14] hover:bg-[#e0690d] text-white rounded transition-colors"
           >{{ demoLoaded ? '🧹 Clear' : '▶ Demo' }}</button>
+          <a :href="TOOLCHAIN_URL" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 bg-[#6f42c1] hover:bg-[#5a32a3] text-white rounded transition-colors">🖥️ TC Dashboard</a>
           <span class="flex items-center space-x-2 text-xs text-gray-600 bg-[#e9ecef] rounded-full px-3 py-1.5">
             👤 {{ userName }}
             <button
@@ -57,7 +58,6 @@
                 class="text-xs px-2 py-1 bg-gray-400 hover:bg-gray-300 text-white rounded transition-colors"
             >Logout</button>
           </span>
-          <a :href="TOOLCHAIN_URL" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 bg-[#6f42c1] hover:bg-[#5a32a3] text-white rounded transition-colors">🖥️ Toolchain Dashboard</a>
         </div>
       </div>
 
