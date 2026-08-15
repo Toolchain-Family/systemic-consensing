@@ -132,3 +132,14 @@ See [LICENSE](LICENSE).
 ---
 
 **Made with ❤️ for better decision-making**
+
+
+## Harmonization (2026)
+
+Part of the Toolchain family of harmonized tools:
+- Unified 3-line header (icon/title, tagline, live metrics) styled like SWOT
+- Standard menu bar: Save / Load / Clear / Demo, user pill with logout, Toolchain Dashboard (new tab)
+- Dark footer with tool name + "Toolchain"
+- Shared favicon, hash routing, version auto-refresh (version.json), title/logo returns to start view
+- Unified SignInModal (sign in / continue without signing in)
+- Toolchain Dashboard URL configurable via `VITE_TOOLCHAIN_URL` (default: https://tapassio.pantek.ch/Dashboard/)
