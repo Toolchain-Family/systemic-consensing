@@ -18,7 +18,12 @@ async function ensureCurrentVersion() {
       const alreadyReloaded = sessionStorage.getItem(RELOADED_KEY) === '1'
       if (alreadyReloaded) return
       sessionStorage.setItem(RELOADED_KEY, '1')
-      window.location.reload()
+      const url = window.location.href
+      const hashIdx = url.indexOf('#')
+      const base = hashIdx === -1 ? url : url.slice(0, hashIdx)
+      const hash = hashIdx === -1 ? '' : url.slice(hashIdx)
+      const sep = base.includes('?') ? '&' : '?'
+      window.location.replace(base + sep + 'v=' + encodeURIComponent(remote) + hash)
     }
   } catch (e) {
     console.warn('Version check skipped:', e)
