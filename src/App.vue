@@ -166,7 +166,7 @@
         </div>
       </div>
 
-      <footer class="bg-[#2c3e50] text-white text-center py-4 px-4 text-sm">© 2026 Systemic Consensing Tool · Toolchain</footer>
+      <footer class="bg-[#2c3e50] text-white text-center py-4 px-4 text-sm">© 2026 Systemic Consensing Tool · Toolchain <span v-if="isAuthenticated">· DocPouch: connected</span><span v-else>· DocPouch: not connected</span></footer>
     </div>
   </div>
 </template>
