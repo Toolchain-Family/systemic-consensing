@@ -65,6 +65,7 @@
             @click="submit"
             :disabled="!canSubmitVotes"
             class="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-8 py-3 rounded-lg font-medium transition-colors"
+            title="Submit All Votes"
         >
           Submit All Votes
         </button>

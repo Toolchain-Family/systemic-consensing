@@ -8,6 +8,7 @@
       <div class="grid grid-cols-3 gap-1 mb-3">
         <button
             @click="sessionMode = 'join'"
+            :title="sessionMode === 'join' ? 'Join Session (current)' : 'Join Session'"
             :class="[
             'px-2 py-2 text-xs font-medium rounded transition-colors',
             sessionMode === 'join'
@@ -19,6 +20,7 @@
         </button>
         <button
             @click="sessionMode = 'create'"
+            :title="sessionMode === 'create' ? 'Create Session (current)' : 'Create Session'"
             :class="[
             'px-2 py-2 text-xs font-medium rounded transition-colors',
             sessionMode === 'create'
@@ -30,6 +32,7 @@
         </button>
         <button
             @click="sessionMode = 'import'"
+            :title="sessionMode === 'import' ? 'Import Session (current)' : 'Import Session'"
             :class="[
             'px-2 py-2 text-xs font-medium rounded transition-colors',
             sessionMode === 'import'
@@ -53,6 +56,7 @@
         <button
             @click="join"
             class="w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
+            title="Join Session"
         >
           Join Session
         </button>
@@ -64,6 +68,7 @@
                 v-for="s in sessions"
                 :key="s._id"
                 @click="joinSessionById(s._id)"
+                :title="s.question"
                 class="w-full text-left px-3 py-2 text-xs bg-gray-50 hover:bg-blue-50 rounded border border-gray-200 transition-colors"
             >
               <div class="font-medium text-gray-900">{{ s.question }}</div>
@@ -120,6 +125,7 @@
               @click="createFromImport"
               :disabled="!selectedCategory"
               class="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              title="Create Session from Import"
           >
             Create Session from Import
           </button>
@@ -131,6 +137,7 @@
         <button
             @click="showCreateForm = !showCreateForm"
             class="w-full bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
+            :title="showCreateForm ? 'Cancel' : 'Create Session'"
         >
           {{ showCreateForm ? 'Cancel' : 'Create Session' }}
         </button>
@@ -168,6 +175,7 @@
               @click="create"
               :disabled="!canCreateSession"
               class="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              title="Create & Start"
           >
             Create & Start
           </button>
@@ -203,19 +211,19 @@
       <h3 class="text-sm font-semibold text-gray-900 mb-3">Export Results</h3>
       <div class="grid grid-cols-2 gap-2">
         <button @click="$emit('export', 'csv')"
-                class="px-3 py-2 text-xs font-medium bg-green-100 text-green-700 border border-green-300 rounded hover:bg-green-200 transition-colors">
+                class="px-3 py-2 text-xs font-medium bg-green-100 text-green-700 border border-green-300 rounded hover:bg-green-200 transition-colors" title="Export CSV">
           📊 CSV
         </button>
         <button @click="$emit('export', 'json')"
-                class="px-3 py-2 text-xs font-medium bg-blue-100 text-blue-700 border border-blue-300 rounded hover:bg-blue-200 transition-colors">
+                class="px-3 py-2 text-xs font-medium bg-blue-100 text-blue-700 border border-blue-300 rounded hover:bg-blue-200 transition-colors" title="Export JSON">
           📋 JSON
         </button>
         <button @click="$emit('export', 'markdown')"
-                class="px-3 py-2 text-xs font-medium bg-purple-100 text-purple-700 border border-purple-300 rounded hover:bg-purple-200 transition-colors">
+                class="px-3 py-2 text-xs font-medium bg-purple-100 text-purple-700 border border-purple-300 rounded hover:bg-purple-200 transition-colors" title="Export Markdown">
           📝 Markdown
         </button>
         <button @click="$emit('export', 'excel')"
-                class="px-3 py-2 text-xs font-medium bg-orange-100 text-orange-700 border border-orange-300 rounded hover:bg-orange-200 transition-colors">
+                class="px-3 py-2 text-xs font-medium bg-orange-100 text-orange-700 border border-orange-300 rounded hover:bg-orange-200 transition-colors" title="Export Excel">
           📈 Excel
         </button>
       </div>

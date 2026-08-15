@@ -21,6 +21,7 @@
         <button
           @click="dismissed = false"
           class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium transition-colors"
+          title="Sign in with DocPouch"
         >Sign in with DocPouch</button>
       </div>
     </div>
@@ -42,22 +43,26 @@
           <button
               @click="saveCurrentSession"
               class="text-xs px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded transition-colors"
+              title="Save"
           >💾 Save</button>
           <button
               @click="loadSessionsFromDocPouch"
               class="text-xs px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white rounded transition-colors"
+              title="Load"
           >📥 Load</button>
           <button
               @click="toggleDemo"
               class="text-xs px-3 py-1.5 bg-[#fd7e14] hover:bg-[#e0690d] text-white rounded transition-colors"
+              :title="demoLoaded ? 'Clear' : 'Demo'"
           >{{ demoLoaded ? '🧹 Clear' : '▶ Demo' }}</button>
-          <a :href="TOOLCHAIN_URL" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 bg-[#6f42c1] hover:bg-[#5a32a3] text-white rounded transition-colors">🖥️ TC Dashboard</a>
+          <a :href="TOOLCHAIN_URL" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 bg-[#6f42c1] hover:bg-[#5a32a3] text-white rounded transition-colors" title="TC Dashboard">🖥️ TC Dashboard</a>
           <button title="Help" class="w-[34px] h-[34px] rounded-full bg-[#6c757d] text-white text-base font-semibold hover:brightness-110" @click="showHelp = true">?</button>
           <span class="flex items-center space-x-2 text-xs text-gray-600 bg-[#e9ecef] rounded-full px-3 py-1.5">
             👤 {{ userName }}
             <button
                 @click="logout()"
                 class="text-xs px-2 py-1 bg-gray-400 hover:bg-gray-300 text-white rounded transition-colors"
+                title="Logout"
             >Logout</button>
           </span>
         </div>
@@ -71,6 +76,7 @@
                 v-for="tab in tabs"
                 :key="tab.id"
                 @click="activeTab = tab.id"
+                :title="tab.label"
                 :class="[
                 'px-4 py-2 text-sm font-medium rounded transition-colors',
                 activeTab === tab.id

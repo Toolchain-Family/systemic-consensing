@@ -36,6 +36,7 @@
                 @click="login"
                 :disabled="!username || !password"
                 class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                title="Log in"
             >
               Log in
             </button>
@@ -49,6 +50,7 @@
           <button
               @click="loginOidc()"
               class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+              title="Sign in with DocPouch"
           >
             Sign in with DocPouch
           </button>

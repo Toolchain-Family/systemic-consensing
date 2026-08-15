@@ -19,8 +19,8 @@ defineEmits(['continueWithoutLogin', 'signIn'])
       <p class="signin-text">
         Please sign in via DocPouch to save and load your {{ dataDescription }}.
       </p>
-      <button class="signin-btn" @click="$emit('signIn')">🔓 Sign in with DocPouch</button>
-      <button class="continue-link" @click="$emit('continueWithoutLogin')">Continue without signing in</button>
+      <button class="signin-btn" @click="$emit('signIn')" title="Sign in with DocPouch">🔓 Sign in with DocPouch</button>
+      <button class="continue-link" @click="$emit('continueWithoutLogin')" title="Continue without signing in">Continue without signing in</button>
     </div>
   </div>
 </template>
