@@ -43,7 +43,7 @@ export async function loadSessions() {
         });
         sessions.value = (docs || []).map(deserializeSession);
     } catch (e) {
-        loadError.value = e.message || 'Sessions konnten nicht geladen werden.';
+        loadError.value = e.message || 'Sessions could not be loaded.';
     } finally {
         sessionsLoading.value = false;
     }

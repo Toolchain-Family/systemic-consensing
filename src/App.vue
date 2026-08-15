@@ -6,32 +6,58 @@
       <div class="text-white text-lg">Loading...</div>
     </div>
 
-    <!-- Login -->
-    <LoginView v-else-if="!isAuthenticated" />
+    <SignInModal
+      v-else-if="!isAuthenticated && !dismissed"
+      tool-name="Systemic Consensing Tool"
+      data-description="consensus sessions and votes"
+      @sign-in="loginOidc()"
+      @continue-without-login="dismissed = true"
+    />
+
+    <div v-else-if="!isAuthenticated" class="min-h-screen flex items-center justify-center">
+      <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+        <p class="text-sm text-gray-600 mb-4">You are using the Systemic Consensing Tool without signing in.</p>
+        <button
+          @click="dismissed = false"
+          class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium transition-colors"
+        >Sign in with DocPouch</button>
+      </div>
+    </div>
 
     <!-- Main App -->
     <div v-else class="max-w-7xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
 
       <!-- Header Section -->
-      <div class="bg-slate-700 text-white p-4">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 bg-white rounded flex items-center justify-center">
-              <span class="text-slate-700 font-bold">🤝</span>
-            </div>
-            <h1 class="text-xl font-semibold">Systemic Consensing Tool</h1>
-          </div>
-          <div class="flex items-center space-x-4">
-            <div class="text-sm text-slate-300">
-              Decision Making through Minimum Resistance
-            </div>
+      <div style="background: linear-gradient(90deg,#2c3e50 0%,#33485d 100%)" class="text-white text-center px-6 py-5">
+        <h1 class="text-[26px] font-bold cursor-pointer" @click="backToStart">Systemic Consensing Tool</h1>
+        <p class="text-[14px] opacity-75 mt-[4px]">Decision Making through Minimum Resistance</p>
+        <p class="text-[12px] opacity-55 mt-[5px]">📊 {{ sessions.length }} Sessions | 🗳️ {{ currentSession?.options?.length ?? 0 }} Options | ✅ {{ votedCount }} Votes</p>
+      </div>
+
+      <!-- Controls Bar -->
+      <div class="bg-[#f8f9fa] border-b border-[#e9ecef] px-8 py-4 flex items-center justify-between gap-4 flex-wrap">
+        <div></div>
+        <div class="flex items-center space-x-3">
+          <button
+              @click="saveCurrentSession"
+              class="text-xs px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded transition-colors"
+          >💾 Save</button>
+          <button
+              @click="loadSessionsFromDocPouch"
+              class="text-xs px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white rounded transition-colors"
+          >📥 Load</button>
+          <button
+              @click="toggleDemo"
+              class="text-xs px-3 py-1.5 bg-[#fd7e14] hover:bg-[#e0690d] text-white rounded transition-colors"
+          >{{ demoLoaded ? '🧹 Clear' : '▶ Demo' }}</button>
+          <span class="flex items-center space-x-2 text-xs text-gray-600 bg-[#e9ecef] rounded-full px-3 py-1.5">
+            👤 {{ userName }}
             <button
                 @click="logout()"
-                class="text-xs px-3 py-1.5 bg-slate-600 hover:bg-slate-500 rounded transition-colors"
-            >
-              Logout ({{ userName }})
-            </button>
-          </div>
+                class="text-xs px-2 py-1 bg-gray-400 hover:bg-gray-300 text-white rounded transition-colors"
+            >Logout</button>
+          </span>
+          <a :href="TOOLCHAIN_URL" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 bg-[#6f42c1] hover:bg-[#5a32a3] text-white rounded transition-colors">🖥️ Toolchain Dashboard</a>
         </div>
       </div>
 
@@ -137,27 +163,76 @@
           </div>
         </div>
       </div>
+
+      <footer class="bg-[#2c3e50] text-white text-center py-4 px-4 text-sm">© 2026 Systemic Consensing Tool · Toolchain</footer>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import LoginView from './components/LoginView.vue';
+import SignInModal from './components/SignInModal.vue';
 import SessionSidebar from './components/SessionSidebar.vue';
 import VotingPanel from './components/VotingPanel.vue';
 import ResultsPanel from './components/ResultsPanel.vue';
 import AboutPanel from './components/AboutPanel.vue';
 import {
-  isAuthenticated, authInitialized, userName, initAuth, logout,
+  isAuthenticated, authInitialized, userName, initAuth, logout, loginOidc,
 } from './composables/useAuth.js';
 import {
   sessions, currentSession, sessionsLoading, loadSessions,
   createSession as createDocSession, joinSession as joinDocSession,
-  submitVotes as persistVotes,
+  submitVotes as persistVotes, persist as saveSession,
 } from './composables/useConsensusData.js';
 
+const TOOLCHAIN_URL = import.meta.env.VITE_TOOLCHAIN_URL || 'https://tapassio.pantek.ch/Dashboard/';
+
 const activeTab = ref('voting');
+const dismissed = ref(false);
+
+function backToStart() {
+  activeTab.value = 'voting';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+const demoLoaded = ref(false);
+let demoSessionId = null;
+
+function toggleDemo() {
+  if (demoLoaded.value) {
+    sessions.value = sessions.value.filter(s => s._id !== demoSessionId);
+    currentSession.value = null;
+    demoSessionId = null;
+    demoLoaded.value = false;
+  } else {
+    const demo = {
+      _id: 'demo-' + Date.now(),
+      owner: userName.value || '',
+      title: 'Systemic Consensing — Demo',
+      question: 'Where should the new team office be located?',
+      options: ['Zurich', 'Bern', 'Basel', 'Lausanne', 'St. Gallen'],
+      endTime: null,
+      status: 'open',
+      votes: {
+        'Alice': { hasVoted: true, votes: { Zurich: 2, Bern: 4, Basel: 1, Lausanne: 6, 'St. Gallen': 8 } },
+        'Bob': { hasVoted: true, votes: { Zurich: 3, Bern: 1, Basel: 5, Lausanne: 2, 'St. Gallen': 9 } },
+      },
+    };
+    demoSessionId = demo._id;
+    sessions.value.unshift(demo);
+    currentSession.value = demo;
+    demoLoaded.value = true;
+  }
+}
+
+async function saveCurrentSession() {
+  if (!currentSession.value) return;
+  await saveSession(currentSession.value);
+}
+
+async function loadSessionsFromDocPouch() {
+  await loadSessions();
+}
 
 const tabs = [
   { id: 'voting', label: 'Voting' },

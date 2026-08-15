@@ -49,7 +49,7 @@ export async function loginJwt(username, password) {
         await dpClient.login({ name: username, password });
         await onLoginSuccess();
     } catch (e) {
-        loginError.value = 'Login fehlgeschlagen. Benutzername oder Passwort falsch.';
+        loginError.value = 'Login failed. Username or password is incorrect.';
     }
 }
 

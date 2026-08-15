@@ -13,7 +13,7 @@
         <template v-if="AUTH_METHOD === 'jwt'">
           <div class="space-y-4">
             <div>
-              <label class="block text-xs font-medium text-gray-700 mb-1">Benutzername</label>
+              <label class="block text-xs font-medium text-gray-700 mb-1">Username</label>
               <input
                   type="text"
                   v-model="username"
@@ -22,7 +22,7 @@
               />
             </div>
             <div>
-              <label class="block text-xs font-medium text-gray-700 mb-1">Passwort</label>
+              <label class="block text-xs font-medium text-gray-700 mb-1">Password</label>
               <input
                   type="password"
                   v-model="password"
@@ -37,20 +37,20 @@
                 :disabled="!username || !password"
                 class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
             >
-              Anmelden
+              Log in
             </button>
           </div>
         </template>
 
         <template v-else>
           <p class="text-sm text-gray-600 text-center mb-4">
-            Melden Sie sich mit Ihrem Toolchain-Konto an, um Abstimmungen zu erstellen und daran teilzunehmen.
+            Sign in with your Toolchain account to create and participate in votings.
           </p>
           <button
               @click="loginOidc()"
               class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
           >
-            Mit DocPouch anmelden
+            Sign in with DocPouch
           </button>
         </template>
       </div>

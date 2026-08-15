@@ -58,7 +58,7 @@
         </button>
 
         <div v-if="sessions.length > 0" class="pt-2">
-          <label class="block text-xs font-medium text-gray-700 mb-1">Verfügbare Sessions:</label>
+          <label class="block text-xs font-medium text-gray-700 mb-1">Available Sessions:</label>
           <div class="space-y-1 max-h-40 overflow-y-auto">
             <button
                 v-for="s in sessions"
