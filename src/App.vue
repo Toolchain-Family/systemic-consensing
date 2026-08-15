@@ -51,6 +51,7 @@
               class="text-xs px-3 py-1.5 bg-[#fd7e14] hover:bg-[#e0690d] text-white rounded transition-colors"
           >{{ demoLoaded ? '🧹 Clear' : '▶ Demo' }}</button>
           <a :href="TOOLCHAIN_URL" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 bg-[#6f42c1] hover:bg-[#5a32a3] text-white rounded transition-colors">🖥️ TC Dashboard</a>
+          <button title="Help" class="w-[34px] h-[34px] rounded-full bg-[#6c757d] text-white text-base font-semibold hover:brightness-110">?</button>
           <span class="flex items-center space-x-2 text-xs text-gray-600 bg-[#e9ecef] rounded-full px-3 py-1.5">
             👤 {{ userName }}
             <button
