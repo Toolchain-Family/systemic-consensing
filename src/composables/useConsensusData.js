@@ -1,6 +1,7 @@
 import { ref } from 'vue';
 import { dpClient, currentUserId } from './useAuth.js';
-import { CONSENSUS_STRUCTURE, TOOL_NAME } from '../config/docpouch.js';
+import { consensusStructure } from './useConsensusConfig.js';
+import { TOOL_NAME } from '../config/docpouch.js';
 
 const sessions = ref([]);
 const currentSession = ref(null);
@@ -38,8 +39,8 @@ export async function loadSessions() {
     loadError.value = '';
     try {
         const docs = await dpClient.fetchDocuments({
-            type: CONSENSUS_STRUCTURE.type,
-            subType: CONSENSUS_STRUCTURE.subType,
+            type: consensusStructure.value.type,
+            subType: consensusStructure.value.subType,
         });
         sessions.value = (docs || []).map(deserializeSession);
     } catch (e) {
@@ -62,8 +63,8 @@ export async function createSession(payload) {
         originalItems: payload.originalItems || null,
     };
     const base = {
-        type: CONSENSUS_STRUCTURE.type,
-        subType: CONSENSUS_STRUCTURE.subType,
+        type: consensusStructure.value.type,
+        subType: consensusStructure.value.subType,
         title: `${DEFAULT_TITLE} — ${payload.question}`,
         shareWithGroup: false,
         shareWithDepartment: false,
@@ -97,8 +98,8 @@ export async function submitVotes(session, participant, votes) {
 
 export async function persist(session) {
     const base = {
-        type: CONSENSUS_STRUCTURE.type,
-        subType: CONSENSUS_STRUCTURE.subType,
+        type: consensusStructure.value.type,
+        subType: consensusStructure.value.subType,
         title: session.title || `${DEFAULT_TITLE} — ${session.question}`,
         shareWithGroup: false,
         shareWithDepartment: false,
