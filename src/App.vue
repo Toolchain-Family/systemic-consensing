@@ -172,7 +172,7 @@
         </div>
       </div>
 
-      <footer class="bg-[#2c3e50] text-white text-center py-4 px-4 text-sm">© 2026 Systemic Consensing Tool · Toolchain <span v-if="isAuthenticated">· DocPouch: connected</span><span v-else>· DocPouch: not connected</span><span v-if="isConfigLoaded"> · SysConsens configuration loaded (doc <code>{{ configDocId }}</code>)</span></footer>
+      <footer class="bg-[#2c3e50] text-white text-center py-4 px-4 text-sm">© 2026 Systemic Consensing Tool · Toolchain <span v-if="isAuthenticated">· DocPouch: connected</span><span v-else>· DocPouch: not connected</span><span v-if="isConfigLoaded"> · SysConsens configuration loaded (doc <code>{{ configDocId }}</code>)</span><span v-else-if="isAuthenticated"> · SysConsens configuration not loaded<span v-if="configLoadError"> ({{ configLoadError }})</span></span></footer>
     </div>
   </div>
 </template>
@@ -194,7 +194,7 @@ import {
   createSession as createDocSession, joinSession as joinDocSession,
   submitVotes as persistVotes, persist as saveSession,
 } from './composables/useConsensusData.js';
-import { loadConsensusConfig, configDocId, isConfigLoaded } from './composables/useConsensusConfig.js';
+import { loadConsensusConfig, configDocId, isConfigLoaded, configLoadError } from './composables/useConsensusConfig.js';
 
 const TOOLCHAIN_URL = import.meta.env.VITE_TOOLCHAIN_URL || 'https://tapassio.pantek.ch/Dashboard/';
 
