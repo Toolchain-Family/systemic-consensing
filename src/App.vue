@@ -30,11 +30,12 @@
     <div v-else class="max-w-7xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
 
       <!-- Header Section -->
-      <div style="background: linear-gradient(90deg,#2c3e50 0%,#33485d 100%)" class="text-white text-center px-6 py-5">
-        <h1 class="text-[26px] font-bold cursor-pointer" @click="backToStart">Systemic Consensing Tool</h1>
-        <p class="text-[14px] opacity-75 mt-[4px]">Decision Making through Minimum Resistance</p>
-        <p class="text-[12px] opacity-55 mt-[5px]">📊 {{ sessions.length }} Sessions | 🗳️ {{ currentSession?.options?.length ?? 0 }} Options | ✅ {{ votedCount }} Votes</p>
-      </div>
+      <ToolHeader
+        tool-name="Systemic Consensing Tool"
+        subtitle="Decision Making through Minimum Resistance"
+        logo="🤝"
+        :metrics="`📊 ${sessions.length} Sessions | 🗳️ ${currentSession?.options?.length ?? 0} Options | ✅ ${votedCount} Votes`"
+      />
 
       <!-- Controls Bar -->
       <div class="bg-[#f8f9fa] border-b border-[#e9ecef] px-8 py-4 flex items-center justify-between gap-4 flex-wrap">
@@ -172,7 +173,13 @@
         </div>
       </div>
 
-      <footer class="bg-[#2c3e50] text-white text-center py-4 px-4 text-sm">© 2026 Systemic Consensing Tool · Toolchain <span v-if="isAuthenticated">· DocPouch: connected</span><span v-else>· DocPouch: not connected</span><span v-if="isConfigLoaded"> · SysConsens configuration loaded (doc <code>{{ configDocId }}</code>)</span><span v-else-if="isAuthenticated"> · SysConsens configuration not loaded<span v-if="configLoadError"> ({{ configLoadError }})</span></span></footer>
+      <ToolFooter
+        tool-name="Systemic Consensing Tool"
+        :connected="isAuthenticated"
+        :config-loaded="isConfigLoaded"
+        :config-doc-id="configDocId"
+        :config-load-error="configLoadError"
+      />
     </div>
   </div>
 </template>
@@ -181,6 +188,8 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import SignInModal from './components/SignInModal.vue';
 import HelpModal from './components/HelpModal.vue';
+import ToolHeader from './components/ToolHeader.vue';
+import ToolFooter from './components/ToolFooter.vue';
 import helpContent from './helpContent.js';
 import SessionSidebar from './components/SessionSidebar.vue';
 import VotingPanel from './components/VotingPanel.vue';
