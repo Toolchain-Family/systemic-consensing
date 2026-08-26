@@ -11,7 +11,7 @@ export const OIDC_CONFIG = {
     clientId: '-JU31pfHpF6sNaPFYPUkOrXsXHky8Gz023pizHNLhjf',
     redirectUri: IS_LOCAL
         ? 'http://localhost:3001/'
-        : 'https://tapassio.pantek.ch/Tools/SysConsens/',
+        : 'https://tapassio.pantek.ch/tc/SysConsens/',
     scope: 'openid profile email offline_access',
 };
 

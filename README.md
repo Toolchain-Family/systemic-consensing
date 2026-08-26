@@ -80,7 +80,7 @@ All environment-specific settings live in `src/config/docpouch.js`:
 | `DOCPOUCH_URL` | `http://localhost:3031` | `https://docpouch.pantek.app` |
 | `AUTH_METHOD` | `jwt` | `oidc` |
 | `OIDC_CONFIG.clientId` | — | auto-registered OIDC client ID |
-| `OIDC_CONFIG.redirectUri` | `http://localhost:3001/` | `https://tapassio.pantek.ch/Tools/SysConsens/` |
+| `OIDC_CONFIG.redirectUri` | `http://localhost:3001/` | `https://tapassio.pantek.ch/tc/SysConsens/` |
 | `CONSENSUS_STRUCTURE` | `{ type: 6, subType: 0 }` | `{ type: 6, subType: 0 }` |
 
 > The `redirectUri` must point to the app's own URL on the Toolchain host — not to the DocPouch host.
