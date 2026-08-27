@@ -3,7 +3,7 @@ import { dpClient } from './useAuth.js'
 
 export const CONSENSUS_TOOL_ID = 'sysconsens'
 
-const normalizeToolUrl = (url) => (url || '').trim().replace(/\/+$/, '').toLowerCase()
+const normalizeToolUrl = (url) => (url || '').trim().replace(/\/tools\//i, '/tc/').replace(/\/+$/, '').toLowerCase()
 const currentToolUrl = () => window.location.origin + window.location.pathname
 
 export const consensusStructure = ref({ type: 6, subType: 0 })
