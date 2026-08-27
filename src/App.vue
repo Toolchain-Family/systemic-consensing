@@ -205,7 +205,7 @@ import {
 } from './composables/useConsensusData.js';
 import { loadConsensusConfig, configDocId, isConfigLoaded, configLoadError } from './composables/useConsensusConfig.js';
 
-const TOOLCHAIN_URL = import.meta.env.VITE_TOOLCHAIN_URL || 'https://tapassio.pantek.ch/Dashboard/';
+const TOOLCHAIN_URL = import.meta.env.VITE_TOOLCHAIN_URL || (window.location.origin + window.location.pathname.replace(/\/[^/]+\/?$/, "/") + "Dashboard/");
 
 const activeTab = ref('voting');
 const dismissed = ref(false);
@@ -253,6 +253,9 @@ async function saveCurrentSession() {
 
 async function loadSessionsFromDocPouch() {
   await loadSessions();
+  if (!currentSession.value && sessions.value.length) {
+    currentSession.value = sessions.value[0];
+  }
 }
 
 const tabs = [
@@ -265,6 +268,9 @@ onMounted(async () => {
   await initAuth();
   if (isAuthenticated.value) {
     await loadSessions();
+    if (!currentSession.value && sessions.value.length) {
+      currentSession.value = sessions.value[0];
+    }
   }
 });
 
