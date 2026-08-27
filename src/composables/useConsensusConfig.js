@@ -5,6 +5,17 @@ export const CONSENSUS_TOOL_ID = 'sysconsens'
 
 const normalizeToolUrl = (url) => (url || '').trim().replace(/\/tools\//i, '/tc/').replace(/\/+$/, '').toLowerCase()
 const currentToolUrl = () => window.location.origin + window.location.pathname
+const selfHealConfigUrl = async (doc) => {
+  try {
+    if (!doc || !doc._id) return
+    const cur = currentToolUrl().replace(/\/+$/, '')
+    const stored = String(doc.content?.toolUrl || doc.content?.url || '').replace(/\/+$/, '')
+    if (!stored || stored === cur) return
+    await dpClient.updateDocument(doc._id, { ...doc, content: { ...doc.content, toolUrl: cur } })
+  } catch (e) {
+    console.warn('config self-heal failed', e)
+  }
+}
 
 export const consensusStructure = ref({ type: 6, subType: 0 })
 export const configDocId = ref('')
@@ -30,6 +41,7 @@ export async function loadConsensusConfig() {
             return normalizeToolUrl(c.toolUrl || c.url) === here
         })
         const doc = matching || candidates[0]
+        await selfHealConfigUrl(doc)
         const c = doc.content || {}
         const a = c.assignments?.consensusSession
         if (!a || !a.type || a.subType === undefined) {
