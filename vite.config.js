@@ -18,7 +18,7 @@ function versionStamp() {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    base: '/Tools/SysConsens/',
+    base: '/tc/SysConsens/',
     plugins: [vue(), versionStamp()],
     resolve: {
         alias: {
