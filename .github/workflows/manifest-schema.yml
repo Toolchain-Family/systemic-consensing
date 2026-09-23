@@ -1,0 +1,40 @@
+name: manifest-schema-validation
+
+on:
+  push:
+    branches: [main, master]
+    paths: ['public/manifest.json']
+  pull_request:
+    branches: [main, master]
+    paths: ['public/manifest.json']
+  workflow_dispatch:
+
+jobs:
+  validate-manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fetch unified manifest schema (toolchain-manifest repo)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api "repos/Toolchain-Family/toolchain-manifest/contents/schema/toolchain-manifest.schema.json" \
+            --jq '.content' | base64 -d > /tmp/manifest.schema.json
+          echo "schema bytes: $(wc -c < /tmp/manifest.schema.json)"
+
+      - name: Validate public/manifest.json
+        run: |
+          npm install ajv@8 --no-save --silent > /dev/null
+          node -e "
+          const Ajv=require('ajv');const fs=require('fs');
+          const schema=JSON.parse(fs.readFileSync('/tmp/manifest.schema.json','utf8'));
+          const m=JSON.parse(fs.readFileSync('public/manifest.json','utf8'));
+          const v=new Ajv({allErrors:true}).compile(schema);
+          if(!v(m)){console.error('❌ public/manifest.json INVALID:');console.error(v.errors.map(e=>'  '+e.instancePath+' '+e.message).join('\n'));process.exit(1)}
+          console.log('✅ public/manifest.json valid — tool: '+m.tool+', version: '+m.version+', roles: '+(m.roles||[]).length);
+          "
