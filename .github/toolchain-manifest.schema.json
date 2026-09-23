@@ -1,0 +1,132 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/Toolchain-Family/toolchain-manifest/toolchain-manifest.schema.json",
+  "title": "Toolchain Tool Manifest",
+  "description": "Manifest contract for tools participating in a Toolchain-Family toolchain. Aligned with the Toolchain Tool Manager (TTM) manifest contract: a tool serves this file at <url>/manifest.json with CORS enabled, and TTM fetches it to register the tool and map its roles onto DocPouch data structures.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["tool", "version", "roles"],
+  "properties": {
+    "tool": {
+      "type": "string",
+      "description": "Unique tool identifier / display name (e.g. 'swot', 'Ranker'). Pre-fills the tool name in TTM.",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "description": "Tool version, informational. Use a stable, bumpable string (e.g. semver '1.0.0').",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+.*$",
+      "examples": ["1.0.0"]
+    },
+    "matchBy": {
+      "type": "string",
+      "description": "Matching strategy hint. Accepted by TTM, currently unused. Tools in the family use 'content.assignments'.",
+      "examples": ["content.assignments"]
+    },
+    "description": {
+      "type": "string",
+      "description": "Tool description. Pre-fills the tool description in TTM. Required by the TTM authoring guide as one of: this field or role.description.",
+      "minLength": 1
+    },
+    "icon": {
+      "type": "string",
+      "description": "Tool icon as a data URL ('data:image/...;base64,...') or raw base64. Must decode to an image, be <= 40 KB decoded, longest side <= 256 px.",
+      "contentEncoding": "base64"
+    },
+    "roles": {
+      "type": "array",
+      "description": "Document roles the tool reads/writes. Each role is the contract between the tool and the operator's data structures; keys must stay stable across versions. Infrastructure tools (e.g. the Tool Manager, the dashboard itself) may ship an empty list.",
+      "minItems": 0,
+      "items": {
+        "$ref": "#/definitions/role"
+      }
+    }
+  },
+  "definitions": {
+    "role": {
+      "type": "object",
+      "description": "One document role. At least one of role.description or the tool-level description should exist so TTM can pre-fill a description.",
+      "additionalProperties": false,
+      "required": ["key"],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "Stable role identifier. Becomes a key in tool.assignments; downstream tools may rely on it. Do not rename between versions.",
+          "minLength": 1,
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Legacy alias for key (only used if key is absent). Prefer key."
+        },
+        "direction": {
+          "description": "Data-flow direction of this role in a toolchain. 'provides' = the tool writes documents of this role; 'consumes' = the tool reads documents of this role written by an upstream tool; 'both' = the tool may do both. Optional; tools that only produce their roles may omit it (default: provides).",
+          "enum": ["provides", "consumes", "both"]
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of the role's purpose."
+        },
+        "structure": {
+          "type": "array",
+          "description": "Field shape of the role's documents. Enables TTM structure matching/suggestions.",
+          "items": {
+            "$ref": "#/definitions/field"
+          }
+        }
+      }
+    },
+    "field": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "type"],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "Stable field identifier.",
+          "minLength": 1,
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Legacy alias for key (only used if key is absent). Prefer key."
+        },
+        "display": {
+          "type": "string",
+          "description": "Human-readable field label shown in UIs."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Legacy alias for display. Prefer display."
+        },
+        "type": {
+          "description": "Field data type. Core types map 1:1 to DocPouch types; aliases are normalised by TTM (see TYPE_COMPATIBILITY).",
+          "enum": [
+            "string",
+            "number",
+            "boolean",
+            "array",
+            "object",
+            "text",
+            "integer",
+            "float",
+            "double",
+            "bool",
+            "list",
+            "struct",
+            "document",
+            "record"
+          ]
+        },
+        "items": {
+          "type": "string",
+          "description": "For array/list type: the element type (e.g. 'string', or a role key like 'corporateValue')."
+        },
+        "reference": {
+          "type": "string",
+          "description": "For object type: name of the role (or structure) this field references. Boosts TTM structure matching."
+        }
+      }
+    }
+  }
+}
