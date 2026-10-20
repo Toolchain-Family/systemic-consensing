@@ -3,12 +3,25 @@
 // liefert die dataFlow-Mappings, in denen DIESE Tool-Instanz das Ziel ist.
 // Nichts ist hartkodiert - Quellen/Strukturen/Felder kommen aus der Toolchain.
 import { ref, reactive } from 'vue'
-import { applyFieldMappings } from './mappingPath.js'
+import { applyFieldMappings, selectSourceDocs, mergeFields } from './mappingPath.js'
 import { dpClient } from './useAuth.js'
 const CASE_DOC_TYPE = 98
 const CASE_DOC_SUBTYPE = 0
 
 const recordedSources = ref([])
+
+// Name des aktiven Case (aus ?case=…), damit die Tools ihre Dokumente pro Case
+// speichern und laden: Titel "SWOT Analysis – Mosterei Hügli" statt nur "SWOT Analysis".
+const activeCaseName = ref('')
+const caseTitle = (base) => (activeCaseName.value ? `${base} – ${activeCaseName.value}` : base)
+// Das Dokument des aktiven Case; ohne Case das erste Dokument, mit Case aber
+// kein fremdes (sonst würde ein anderer Case überschrieben).
+const pickCaseDoc = (docs) => {
+    if (!docs || !docs.length) return null
+    if (!activeCaseName.value) return docs[0]
+    const n = activeCaseName.value.toLowerCase()
+    return docs.find((d) => String(d.title || (d.content && d.content.name) || '').toLowerCase().includes(n)) || null
+}
 
 export function useDataFlow() {
     const caseId = ref('')
@@ -38,6 +51,7 @@ export function useDataFlow() {
             const doc = docs && docs[0]
             if (!doc) { error.value = 'Case document not found'; return null }
             caseName.value = (doc.content && doc.content.name) || doc.title || ''
+            activeCaseName.value = caseName.value
             chain.value = (doc.content && doc.content.toolchain) || null
             return chain.value
         } catch (e) {
@@ -114,21 +128,25 @@ export function useDataFlow() {
         }
         const docs = await dpClient.fetchDocuments({ type: mapping.sourceType, subType: mapping.sourceSubType })
         if (!docs || !docs.length) throw new Error('No source document found for this mapping')
-        const doc = pickSourceDoc(docs)
-        const content = (doc.content || {})
+        // Ein Dokument (passend zum Case) oder mit mapping.multiple alle Dokumente des Case
+        const chosen = selectSourceDocs(docs, caseName.value, mapping.multiple)
         // Pfade wie "mission.text" oder "factorDetails[category=strength]" sind erlaubt (mappingPath.js)
-        const fields = applyFieldMappings(content, mapping.fieldMappings, doc._id)
-        return { sourceDocId: doc._id, sourceToolName: mapping.sourceToolName || mapping.sourceStructure, fields }
+        const fields = {}
+        chosen.forEach((doc) => mergeFields(fields, applyFieldMappings(doc.content || {}, mapping.fieldMappings, doc._id)))
+        return { sourceDocId: chosen[0]._id, sourceDocIds: chosen.map((d) => d._id), sourceToolName: mapping.sourceToolName || mapping.sourceStructure, fields }
     }
 
     // Import für die Empfänger-Seite festhalten: Inhalt + Referenz zum Dokument
     const recordSource = (mapping, result) => {
-        recordedSources.value.push({
-            tool: mapping.sourceToolName || mapping.sourceStructure,
-            structure: mapping.sourceStructure,
-            docId: result.sourceDocId,
-            importedAt: new Date().toISOString(),
-            fields: result.fields,
+        // Eine Herkunfts-Angabe pro übernommenem Dokument
+        ;(result.sourceDocIds || [result.sourceDocId]).forEach((docId) => {
+            recordedSources.value.push({
+                tool: mapping.sourceToolName || mapping.sourceStructure,
+                structure: mapping.sourceStructure,
+                docId,
+                importedAt: new Date().toISOString(),
+                fields: result.fields,
+            })
         })
     }
 
@@ -137,4 +155,4 @@ export function useDataFlow() {
     return reactive({ caseId, caseName, instanceId, chain, imports, upstreamTools, error, loading, load, fetchSource, recordSource, clearRecordedSources, recordedSources })
 }
 
-export { recordedSources }
+export { recordedSources, activeCaseName, caseTitle, pickCaseDoc }

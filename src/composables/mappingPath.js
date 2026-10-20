@@ -128,3 +128,31 @@ export function listPaths(obj, maxDepth = 3, prefix = '') {
     })
     return [...new Set(out)]
 }
+
+// Quelldokumente wählen: das zum Case passende Dokument (Titel oder Name enthält den
+// Case-Namen) oder – mit multiple – alle Dokumente des Case. Ohne Treffer: das erste
+// bzw. alle Dokumente.
+export function selectSourceDocs(docs, caseName, multiple) {
+    const list = Array.isArray(docs) ? docs : []
+    if (!list.length) return []
+    const n = String(caseName || '').toLowerCase()
+    const matches = n
+        ? list.filter((d) => String(d.title || (d.content && d.content.name) || '').toLowerCase().includes(n))
+        : []
+    if (multiple) return matches.length ? matches : list
+    return [matches[0] || list[0]]
+}
+
+// Felder mehrerer Quelldokumente zusammenführen: Listen werden aneinandergehängt,
+// Objekte zusammengeführt, zwei Einzelwerte werden zu einer Liste.
+export function mergeFields(target, add) {
+    Object.entries(add || {}).forEach(([k, v]) => {
+        if (v === undefined) return
+        const cur = target[k]
+        if (cur === undefined) target[k] = v
+        else if (Array.isArray(cur)) target[k] = cur.concat(v)
+        else if (cur && typeof cur === 'object' && v && typeof v === 'object' && !Array.isArray(v)) mergeFields(cur, v)
+        else target[k] = [cur].concat(v)
+    })
+    return target
+}
