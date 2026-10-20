@@ -38,7 +38,9 @@
           "key": "votes",
           "display": "Votes",
           "type": "object"
-        }
+        },
+        { "key": "sourceDocs", "display": "Source Documents (data-flow inputs)", "type": "array" },
+        { "key": "inheritedData", "display": "Inherited Data (origin doc IDs)", "type": "object" }
       ]
     }
   ],

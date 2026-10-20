@@ -21,6 +21,9 @@ function serializeSession(session) {
         importedData: session.importedData || null,
         category: session.category || null,
         originalItems: session.originalItems || null,
+        // Herkunft der importierten Optionen (siehe Doku "Source Tracking")
+        sourceDocs: Array.isArray(session.sourceDocs) ? session.sourceDocs : [],
+        inheritedData: session.inheritedData || {},
     };
 }
 
@@ -61,6 +64,8 @@ export async function createSession(payload) {
         importedData: payload.importedData || null,
         category: payload.category || null,
         originalItems: payload.originalItems || null,
+        sourceDocs: payload.sourceDocs || [],
+        inheritedData: payload.inheritedData || {},
     };
     const base = {
         type: consensusStructure.value.type,

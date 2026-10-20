@@ -39,7 +39,20 @@
 
       <!-- Controls Bar -->
       <div class="bg-[#f8f9fa] border-b border-[#e9ecef] px-8 py-4 flex items-center justify-between gap-4 flex-wrap">
-        <div></div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <button v-for="m in dataFlow.imports" :key="m.id" @click="applyImport(m)"
+                  :disabled="importBusy"
+                  class="text-xs px-3 py-1.5 bg-[#2b6cb0] hover:bg-[#2c5282] disabled:opacity-50 text-white rounded transition-colors"
+                  :title="'Create a session with options from ' + (m.sourceToolName || 'tool')">
+            ⬇ Import options from {{ m.sourceToolName || 'upstream' }}
+          </button>
+          <span v-if="dataFlow.upstreamTools && dataFlow.upstreamTools.length"
+                class="text-xs font-semibold px-3 py-1.5 rounded-full bg-[#eef2ff] text-[#4338ca] border border-[#c7d2fe]"
+                :title="'Chain: ' + dataFlow.upstreamTools.join(' → ')">
+            ⬆ {{ dataFlow.upstreamTools.join(' → ') }}
+          </span>
+          <span v-if="importStatus" class="text-xs text-gray-600">{{ importStatus }}</span>
+        </div>
         <div class="flex items-center space-x-3">
           <button
               @click="saveCurrentSession"
@@ -204,6 +217,11 @@ import {
   submitVotes as persistVotes, persist as saveSession,
 } from './composables/useConsensusData.js';
 import { loadConsensusConfig, configDocId, isConfigLoaded, configLoadError } from './composables/useConsensusConfig.js';
+import { useDataFlow } from './composables/useDataFlow.js';
+
+const dataFlow = useDataFlow();
+const importBusy = ref(false);
+const importStatus = ref('');
 
 const TOOLCHAIN_URL = import.meta.env.VITE_TOOLCHAIN_URL || (window.location.origin + window.location.pathname.replace(/\/[^/]+\/?$/, "/") + "Dashboard/");
 
@@ -274,9 +292,49 @@ onMounted(async () => {
   }
 });
 
-watch(isAuthenticated, (v) => {
-  if (v) loadConsensusConfig();
-});
+watch(isAuthenticated, async (v) => {
+  if (!v) return;
+  await loadConsensusConfig();
+  try { await dataFlow.load(); } catch (e) { console.warn('Data flow load failed:', e); }
+}, { immediate: true });
+
+// Import von Optionen aus dem gemappten Quell-Feld eines vorgelagerten Tools.
+// Welche Felder importiert werden, legt der User im Toolchain Dashboard fest (Mapping).
+// Es entsteht eine neue Session; die Herkunft wird in sourceDocs der Session gespeichert.
+async function applyImport(mapping) {
+  importBusy.value = true;
+  importStatus.value = '';
+  try {
+    const { sourceDocId, sourceToolName, fields } = await dataFlow.fetchSource(mapping);
+    let imported = [];
+    Object.values(fields).forEach((v) => {
+      if (Array.isArray(v)) imported = imported.concat(v);
+      else if (typeof v === 'string' && v.trim()) imported.push(v);
+    });
+    const options = [...new Set(imported
+      .map((x) => (typeof x === 'object' && x !== null
+        ? (x.title || x.name || x.text || x.factorText || x.feature || x.description || '')
+        : String(x)))
+      .map((o) => o.trim())
+      .filter(Boolean))];
+    if (options.length < 2) throw new Error('At least 2 options are needed in the mapped source fields');
+    dataFlow.clearRecordedSources();
+    dataFlow.recordSource(mapping, { sourceDocId, sourceToolName, fields });
+    await createSession({
+      question: `Which option from ${sourceToolName} meets the least resistance?`,
+      options,
+      endTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      sourceDocs: [...dataFlow.recordedSources],
+      inheritedData: {},
+    });
+    importStatus.value = `Session created with ${options.length} options from ${sourceToolName}`;
+  } catch (e) {
+    importStatus.value = 'Import failed: ' + (e?.message || e);
+  } finally {
+    importBusy.value = false;
+    setTimeout(() => { if (importStatus.value.startsWith('Session')) importStatus.value = ''; }, 5000);
+  }
+}
 
 const participantCount = computed(() => {
   if (!currentSession.value) return 0;
