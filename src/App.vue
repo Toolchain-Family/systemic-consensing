@@ -305,7 +305,8 @@ async function applyImport(mapping) {
   importBusy.value = true;
   importStatus.value = '';
   try {
-    const { sourceDocId, sourceToolName, fields } = await dataFlow.fetchSource(mapping);
+    const fetched = await dataFlow.fetchSource(mapping)
+    const { sourceDocId, sourceToolName, fields } = fetched;
     let imported = [];
     Object.values(fields).forEach((v) => {
       if (Array.isArray(v)) imported = imported.concat(v);
@@ -319,7 +320,7 @@ async function applyImport(mapping) {
       .filter(Boolean))];
     if (options.length < 2) throw new Error('At least 2 options are needed in the mapped source fields');
     dataFlow.clearRecordedSources();
-    dataFlow.recordSource(mapping, { sourceDocId, sourceToolName, fields });
+    dataFlow.recordSource(mapping, fetched);
     await createSession({
       question: `Which option from ${sourceToolName} meets the least resistance?`,
       options,
