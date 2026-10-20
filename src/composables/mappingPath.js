@@ -7,6 +7,7 @@
 //   strategies.title                aus jedem Listeneintrag ein Feld -> Liste von Werten
 //   factorDetails[category=strength] nur die Listeneinträge mit category = strength
 //   factorDetails[category=strength].factorText   gefiltert und ein Feld daraus
+//   factors.*[impactType=threat]    "*" = alle Unterfelder (hier alle PESTEL-Kategorien)
 // Ein Ziel-Pfad wie "project.description" oder "swotFactors.strengths" baut das
 // verschachtelte Objekt auf, das das Ziel-Tool beim Import erwartet.
 // Einfache Feldnamen ohne Punkt und Klammern verhalten sich wie bisher.
@@ -36,7 +37,7 @@ function step(value, { key, filter }) {
         return out
     }
     if (typeof value !== 'object') return undefined
-    let v = value[key]
+    let v = key === '*' ? Object.values(value).flatMap((x) => (Array.isArray(x) ? x : [x])) : value[key]
     if (filter) {
         if (!Array.isArray(v)) return undefined
         v = v.filter((x) => x && typeof x === 'object' && String(x[filter.field]) === filter.value)
