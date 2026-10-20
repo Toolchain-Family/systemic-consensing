@@ -11,6 +11,11 @@
 // Ein Ziel-Pfad wie "project.description" oder "swotFactors.strengths" baut das
 // verschachtelte Objekt auf, das das Ziel-Tool beim Import erwartet.
 // Einfache Feldnamen ohne Punkt und Klammern verhalten sich wie bisher.
+//
+// Zusätzliche Angaben pro Mapping (optional):
+//   rename: { label: 'factorText' }  Feld in jedem Listeneintrag umbenennen
+//                                    (z. B. PESTEL "label" -> SWOT "factorText")
+//   single: true                     nur den ersten Wert übernehmen statt einer Liste
 
 // "factorDetails[category=strength]" -> { key: 'factorDetails', filter: { field: 'category', value: 'strength' } }
 function parseSegment(seg) {
@@ -76,12 +81,36 @@ export function applyFieldMappings(content, fieldMappings, docId) {
         let v = readPath(content || {}, fm.source)
         if (Array.isArray(v)) {
             v = v.map((x) => (x && typeof x === 'object'
-                ? { ...x, _from: { docId, field: fm.source, id: x.id } }
+                ? { ...renameFields(x, fm.rename), _from: { docId, field: fm.source, id: x.id } }
                 : x))
+            if (fm.single) v = v.length ? v[0] : undefined
+        } else if (v && typeof v === 'object') {
+            v = renameFields(v, fm.rename)
         }
         writePath(fields, fm.target, v)
     })
     return fields
+}
+
+// Felder eines Eintrags umbenennen: { label: 'factorText' } kopiert label nach factorText.
+// Das ursprüngliche Feld bleibt erhalten, damit nichts verloren geht.
+export function renameFields(item, rename) {
+    if (!rename || typeof rename !== 'object') return item
+    const out = { ...item }
+    Object.entries(rename).forEach(([from, to]) => {
+        if (from && to && item[from] !== undefined) out[to] = item[from]
+    })
+    return out
+}
+
+// "label→factorText, description→note" (oder mit ->) in { label: 'factorText', description: 'note' }
+export function parseRename(text) {
+    const out = {}
+    String(text || '').split(',').forEach((pair) => {
+        const [from, to] = pair.split(/->|→/).map((x) => (x || '').trim())
+        if (from && to) out[from] = to
+    })
+    return out
 }
 
 // Alle Pfade eines Beispiel-Dokuments auflisten (für Vorschläge im Mapping-Editor)
