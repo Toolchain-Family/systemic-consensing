@@ -3,6 +3,7 @@
 // liefert die dataFlow-Mappings, in denen DIESE Tool-Instanz das Ziel ist.
 // Nichts ist hartkodiert - Quellen/Strukturen/Felder kommen aus der Toolchain.
 import { ref, reactive } from 'vue'
+import { applyFieldMappings } from './mappingPath.js'
 import { dpClient } from './useAuth.js'
 const CASE_DOC_TYPE = 98
 const CASE_DOC_SUBTYPE = 0
@@ -115,19 +116,8 @@ export function useDataFlow() {
         if (!docs || !docs.length) throw new Error('No source document found for this mapping')
         const doc = pickSourceDoc(docs)
         const content = (doc.content || {})
-        const fields = {}
-        ;(mapping.fieldMappings || []).forEach((fm) => {
-            const v = content[fm.source]
-            if (Array.isArray(v)) {
-                // Jeden Faktor mit Provenienz markieren: Dokument + Quellfeld + Faktor-ID
-                const tagged = v.map((x) => (x && typeof x === 'object'
-                    ? { ...x, _from: { docId: doc._id, field: fm.source, id: x.id } }
-                    : x))
-                fields[fm.target] = (fields[fm.target] || []).concat(tagged)
-            } else {
-                fields[fm.target] = v
-            }
-        })
+        // Pfade wie "mission.text" oder "factorDetails[category=strength]" sind erlaubt (mappingPath.js)
+        const fields = applyFieldMappings(content, mapping.fieldMappings, doc._id)
         return { sourceDocId: doc._id, sourceToolName: mapping.sourceToolName || mapping.sourceStructure, fields }
     }
 
