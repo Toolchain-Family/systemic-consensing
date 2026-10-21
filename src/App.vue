@@ -44,7 +44,7 @@
                   :disabled="importBusy"
                   class="text-xs px-3 py-1.5 bg-[#2b6cb0] hover:bg-[#2c5282] disabled:opacity-50 text-white rounded transition-colors"
                   :title="'Create a session with options from ' + (m.sourceToolName || 'tool')">
-            ⬇ Import options from {{ m.sourceToolName || 'upstream' }}
+            ⬇ Import options from {{ m.label || m.sourceToolName || 'upstream' }}
           </button>
           <span v-if="dataFlow.upstreamTools && dataFlow.upstreamTools.length"
                 class="text-xs font-semibold px-3 py-1.5 rounded-full bg-[#eef2ff] text-[#4338ca] border border-[#c7d2fe]"
@@ -217,7 +217,7 @@ import {
   submitVotes as persistVotes, persist as saveSession,
 } from './composables/useConsensusData.js';
 import { loadConsensusConfig, configDocId, isConfigLoaded, configLoadError } from './composables/useConsensusConfig.js';
-import { useDataFlow } from './composables/useDataFlow.js';
+import { useDataFlow, activeCaseName } from './composables/useDataFlow.js';
 
 const dataFlow = useDataFlow();
 const importBusy = ref(false);
@@ -308,13 +308,16 @@ async function applyImport(mapping) {
     const fetched = await dataFlow.fetchSource(mapping)
     const { sourceDocId, sourceToolName, fields } = fetched;
     let imported = [];
-    Object.values(fields).forEach((v) => {
+    // Listen, Texte und Gruppen von Listen (z. B. PESTEL-Faktoren je Kategorie) werden zu Optionen
+    const collect = (v) => {
       if (Array.isArray(v)) imported = imported.concat(v);
       else if (typeof v === 'string' && v.trim()) imported.push(v);
-    });
+      else if (v && typeof v === 'object' && Object.values(v).some(Array.isArray)) Object.values(v).forEach(collect);
+    };
+    Object.values(fields).forEach(collect);
     const options = [...new Set(imported
       .map((x) => (typeof x === 'object' && x !== null
-        ? (x.title || x.name || x.text || x.factorText || x.feature || x.description || '')
+        ? (x.title || x.name || x.label || x.text || x.factorText || x.feature || x.description || '')
         : String(x)))
       .map((o) => o.trim())
       .filter(Boolean))];
@@ -327,6 +330,7 @@ async function applyImport(mapping) {
       endTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
       sourceDocs: [...dataFlow.recordedSources],
       inheritedData: {},
+      caseName: activeCaseName.value,
     });
     importStatus.value = `Session created with ${options.length} options from ${sourceToolName}`;
   } catch (e) {

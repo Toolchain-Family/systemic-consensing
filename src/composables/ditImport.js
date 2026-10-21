@@ -133,3 +133,26 @@ export async function loadDitImports(client, { toolDocId, toolUrl, caseId } = {}
     }
     return ditEntriesToImports(entries, index, structures)
 }
+
+// Beschriftung der Import-Knöpfe: der Name des Quell-Tools. Kommen mehrere Imports aus
+// demselben Tool, wird ergänzt, was sie unterscheidet (Name des DIT-Eintrags bzw. Struktur).
+export function labelImports(list) {
+    const count = {}
+    for (const m of list || []) {
+        const n = m.sourceToolName || 'upstream'
+        count[n] = (count[n] || 0) + 1
+    }
+    for (const m of list || []) {
+        const n = m.sourceToolName || 'upstream'
+        const detail = m.templateName || m.sourceStructure || ''
+        m.label = count[n] > 1 && detail ? `${n} (${detail})` : n
+    }
+    // Immer noch gleich (gleiche Struktur, andere Felder)? Dann die übernommenen Felder nennen.
+    const same = {}
+    for (const m of list || []) same[m.label] = (same[m.label] || 0) + 1
+    for (const m of list || []) {
+        const fields = (m.fieldMappings || []).map((f) => f.source || f.sourceField || f.from).filter(Boolean)
+        if (same[m.label] > 1 && fields.length) m.label = `${m.label.replace(/\)$/, '')}: ${fields.join(', ')})`
+    }
+    return list
+}

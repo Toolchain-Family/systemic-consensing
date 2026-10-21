@@ -4,7 +4,7 @@
 // Nichts ist hartkodiert - Quellen/Strukturen/Felder kommen aus der Toolchain.
 import { ref, reactive } from 'vue'
 import { applyFieldMappings, selectSourceDocs, mergeFields, resolveImportString } from './mappingPath.js'
-import { loadDitImports } from './ditImport.js'
+import { loadDitImports, labelImports } from './ditImport.js'
 import { dpClient } from './useAuth.js'
 const CASE_DOC_TYPE = 98
 const CASE_DOC_SUBTYPE = 0
@@ -67,6 +67,7 @@ export function useDataFlow() {
         if (!chain.value || instanceId.value == null) return
         const df = chain.value.dataFlow || []
         imports.value = df.filter((m) => Number(m.targetInstanceId) === instanceId.value)
+        labelImports(imports.value)
     }
 
     // Ermittelt transitiv alle Tools, die über die Verbindungen vor dieser Instanz liegen,
@@ -113,6 +114,7 @@ export function useDataFlow() {
             })
             if (dit.length) {
                 imports.value = dit
+                labelImports(imports.value)
                 importOrigin.value = 'dit'
             }
         } catch (e) {

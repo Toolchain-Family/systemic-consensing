@@ -55,7 +55,8 @@ export async function loadSessions() {
 
 export async function createSession(payload) {
     const session = {
-        title: payload.question,
+        // Mit Case-Namen, damit jeder Case seine eigenen Sessions findet (auch nach dem Speichern)
+        title: payload.caseName ? `${payload.question} – ${payload.caseName}` : payload.question,
         question: payload.question,
         options: payload.options,
         endTime: payload.endTime,
@@ -70,7 +71,8 @@ export async function createSession(payload) {
     const base = {
         type: consensusStructure.value.type,
         subType: consensusStructure.value.subType,
-        title: `${DEFAULT_TITLE} — ${payload.question}`,
+        // Mit Case-Namen im Titel, damit jeder Case seine eigenen Sessions findet
+        title: payload.caseName ? `${DEFAULT_TITLE} — ${payload.question} – ${payload.caseName}` : `${DEFAULT_TITLE} — ${payload.question}`,
         shareWithGroup: false,
         shareWithDepartment: false,
         public: false,
