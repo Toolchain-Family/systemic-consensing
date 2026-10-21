@@ -71,9 +71,19 @@ export function selectDitEntries(dits, toolDocId, caseId) {
     const flatten = (docs, scope) => docs.flatMap((d) => ((d.content || {}).structures || [])
         .filter((e) => e && e.incomingStructureId)
         .map((e, i) => ({ ...e, ditId: d._id, ditName: (d.content || {}).name || d.title || '', scope, index: i })))
-    const fromCase = flatten(caseDits, 'case')
+    // Gibt es für dieselbe Quell-Struktur mehrere DITs, gilt der zuletzt gespeicherte (content.updatedAt)
+    const newestFirst = (docs) => [...docs].sort((a, b) =>
+        String((b.content || {}).updatedAt || '').localeCompare(String((a.content || {}).updatedAt || '')))
+    // Ein DIT darf mehrere Einträge zur selben Struktur haben; ältere DITs werden für diese Struktur übergangen
+    const onePerStructure = (entries) => {
+        const owner = new Map()
+        for (const e of entries) if (!owner.has(e.incomingStructureId)) owner.set(e.incomingStructureId, e.ditId)
+        return entries.filter((e) => owner.get(e.incomingStructureId) === e.ditId)
+    }
+    const fromCase = onePerStructure(flatten(newestFirst(caseDits), 'case'))
     const covered = new Set(fromCase.map((e) => e.incomingStructureId))
-    return [...fromCase, ...flatten(templates, 'template').filter((e) => !covered.has(e.incomingStructureId))]
+    const fromTemplates = onePerStructure(flatten(newestFirst(templates), 'template'))
+    return [...fromCase, ...fromTemplates.filter((e) => !covered.has(e.incomingStructureId))]
 }
 
 // DIT-Einträge in Import-"Mappings" umwandeln, wie sie useDataFlow.fetchSource versteht
