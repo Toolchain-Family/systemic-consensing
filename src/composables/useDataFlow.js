@@ -3,7 +3,8 @@
 // liefert die dataFlow-Mappings, in denen DIESE Tool-Instanz das Ziel ist.
 // Nichts ist hartkodiert - Quellen/Strukturen/Felder kommen aus der Toolchain.
 import { ref, reactive } from 'vue'
-import { applyFieldMappings, selectSourceDocs, mergeFields } from './mappingPath.js'
+import { applyFieldMappings, selectSourceDocs, mergeFields, resolveImportString } from './mappingPath.js'
+import { loadDitImports } from './ditImport.js'
 import { dpClient } from './useAuth.js'
 const CASE_DOC_TYPE = 98
 const CASE_DOC_SUBTYPE = 0
@@ -29,6 +30,7 @@ export function useDataFlow() {
     const instanceId = ref(null)
     const chain = ref(null)          // content.toolchain des aktiven Case-Dokuments
     const imports = ref([])          // Mappings, wo diese Instanz Ziel ist
+    const importOrigin = ref('')   // 'dit' = Data Import Templates, 'case' = Mappings im Case-Dokument
     const upstreamTools = ref([])    // Namen der Tools transitiv stromaufwärts (in Kettenreihenfolge)
     const error = ref('')
     const loading = ref(false)
@@ -98,12 +100,33 @@ export function useDataFlow() {
         result.forEach((id) => { if (nameById[id]) upstreamTools.value.push(nameById[id]) })
     }
 
+    // Data Import Templates (Standard): DITs dieses Tools für den aktiven Case bzw. Vorlagen.
+    // Gibt es keine, gelten die Mappings aus dem Case-Dokument (Dashboard).
+    const loadDits = async () => {
+        importOrigin.value = imports.value.length ? 'case' : ''
+        try {
+            const client = dpClient
+            if (!client || !client.getToken || !client.getToken()) return
+            const dit = await loadDitImports(client, {
+                toolUrl: window.location.origin + window.location.pathname,
+                caseId: caseId.value || null,
+            })
+            if (dit.length) {
+                imports.value = dit
+                importOrigin.value = 'dit'
+            }
+        } catch (e) {
+            console.warn('DIT import list could not be loaded', e)
+        }
+    }
+
     const load = async () => {
         readContext()
         loading.value = true
         await fetchChain()
         buildImports()
         buildUpstream()
+        await loadDits()
         loading.value = false
         return chain.value
     }
@@ -133,6 +156,10 @@ export function useDataFlow() {
         // Pfade wie "mission.text" oder "factorDetails[category=strength]" sind erlaubt (mappingPath.js)
         const fields = {}
         chosen.forEach((doc) => mergeFields(fields, applyFieldMappings(doc.content || {}, mapping.fieldMappings, doc._id)))
+        // DIT mit Import-String: ein Text pro Quelldokument, z. B. "[marketName]"
+        if (mapping.importString) {
+            mergeFields(fields, { [mapping.importTarget || 'items']: chosen.map((doc) => resolveImportString(mapping.importString, doc.content)).filter(Boolean) })
+        }
         return { sourceDocId: chosen[0]._id, sourceDocIds: chosen.map((d) => d._id), sourceToolName: mapping.sourceToolName || mapping.sourceStructure, fields }
     }
 
@@ -152,7 +179,7 @@ export function useDataFlow() {
 
     const clearRecordedSources = () => { recordedSources.value = [] }
 
-    return reactive({ caseId, caseName, instanceId, chain, imports, upstreamTools, error, loading, load, fetchSource, recordSource, clearRecordedSources, recordedSources })
+    return reactive({ caseId, importOrigin, caseName, instanceId, chain, imports, upstreamTools, error, loading, load, fetchSource, recordSource, clearRecordedSources, recordedSources })
 }
 
 export { recordedSources, activeCaseName, caseTitle, pickCaseDoc }

@@ -156,3 +156,13 @@ export function mergeFields(target, add) {
     })
     return target
 }
+
+// Import-String eines DIT auflösen: "[marketName] ([marketSector])" -> "Dental (Medtech)".
+// In den Klammern sind auch Pfade erlaubt, z. B. "[mission.text]".
+export function resolveImportString(template, content) {
+    return String(template || '').replace(/\[([^\]]+)\]/g, (_m, path) => {
+        const v = readPath(content || {}, path.trim())
+        if (v === undefined || v === null) return ''
+        return Array.isArray(v) ? v.join(', ') : String(v)
+    })
+}
